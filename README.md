@@ -1,2 +1,30 @@
-# schoolchoice
-one to many gale-shapley Algorithm  with python
+# pythonによる1対多DAアルゴリズム
+
+## DAアルゴリズム
+受け入れ保留アルゴリズム（Differed Acceptance Algorithm)のこと。Gale-Shaplay Algorithmとも。  
+今回は、1つの組織に複数の人間を割り当てるone to many。  
+研修医の病院配属や、アメリカの学校選択、東京大学の進学振り分けに採用されている模様。  
+
+今回は、学生提案のDAアルゴリズムを実装している。  
+学生側から見て、耐戦略性と、最適安定マッチングを実現する。  
+
+## 使用法
+Studentオブジェクトに氏名、クラブの選好順位を入力し、Studentオブジェクトの配列を作成。  
+同様に、Schoolオブジェクトに名前、定員、学生の選好順位を入力し配列を作成する。  
+その後、メソッドmatching()を実行すると、アルゴリズムの実行結果が辞書で返却される。  
+
+e.g.  
+
+'''
+students = [Student("1", ["B", "A", "C"]), Student("2", ["A", "B", "C"]), Student("3", ["A", "B", "C"])]
+schools = [School("A", 1, ["1", "3", "2"]), School("B", 1, ["2", "1", "3"]), School("C", 1, ["2", "1", "3"])]
+'''
+
+'''
+matching(students, schools)
+'''
+
+## 注意
+学校選択問題を前提としたので、「配属なし」を想定していない。  
+拡張は今後実施予定。  
+
