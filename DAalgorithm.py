@@ -14,48 +14,50 @@ class School:
         self.preference = preference
         self.capacity = capacity
         self.temporaryList = []
-
-def matching(students, schools):
-    poolList = students
-    differdAccept = schools
+    
+    def sortstudent(self, student):
+        # 受け入れた提案学生を選好順に並び替え
+        priority = self.preference.index(student.name)
+        # 仮配属が0名の場合に備え、ひとまずリストの先頭に追加。
+        self.temporaryList.insert(0, student)
+        for tempstudent in self.temporaryList[::-1]:
+            index = self.preference.index(tempstudent.name)
+            if self.preference.index(tempstudent.name) < priority:
+                self.temporaryList.insert(index, student)
+                del self.temporaryList[0]
+                break
+        return self
 
     # 提案してきた学生を受け入れるかどうかを決定するメソッド
-    def choice(student, school):
+    def choice(self, student):
         # 定員以下の場合、学校は受け入れ、現在の受け入れリストを学校の選好順に並べる。
-        if school.capacity > len(school.temporaryList):
-            index = school.preference.index(student.name)
-            i = 1
-            while len(school.preference) > i:
-                if school.temporaryList == [] or index < school.preference.index(school.temporaryList[-i].name):
-                    school.temporaryList.append(student)
-                    break
-                else:
-                    i += 1
-            return None, school
+        if self.capacity > len(self.temporaryList):
+            return None, self.sortstudent(student)
         # 定員を上回る場合、提案学生とリストの最下位の学生の選好順位を比較し、受け入れかどうかを決定。
+        # 受け入れの場合は選好順に並び替え
         # rejectされた学生は、poolListに戻される。
-        elif school.preference.index(student.name) < school.preference.index(school.temporaryList[-1].name):
-            rejectstudent = school.temporaryList[-1]
+        elif self.preference.index(student.name) < self.preference.index(self.temporaryList[-1].name):
+            rejectstudent = self.temporaryList[-1]
             rejectstudent.rejectcount += 1
-            del school.temporaryList[-1]
-            i = 1
-            while len(school.preference) > i:
-                if school.temporaryList == [] or index < school.preference.index(school.temporaryList[-i].name):
-                    school.temporaryList.append(student)
-                    break
-                else:
-                    i += 1
-            return rejectstudent, school
+            del self.temporaryList[-1]
+            return rejectstudent, self.sortstudent(student)
+        # rejectの場合
         else:
             rejectstudent = student
             rejectstudent.rejectcount += 1
-            return rejectstudent, school
-
-    # poolListが空になる（全員の配属が決定）するまで提案と受け入れ可否を選択し続ける。
+            return rejectstudent, self
+    
+    
+# one to many DA algorithm   
+def matching(students, schools):
+    poolList = students
+    differdAccept = schools
+    
+    # poolListが空になる（全員の配属が決定）まで提案と諾否の決定を続ける。
     while len(poolList)>0:
-        school = next(school for school in differdAccept if school.name == poolList[0].tempPref())  # 参考Qiita
+        school = next(school for school in differdAccept if school.name == poolList[0].tempPref()) 
         index = schools.index(school) 
-        select = choice(poolList[0], school)
+        select = school.choice(poolList[0])
         if select[0] == None:
             del poolList[0]
             differdAccept[index] = school
@@ -63,14 +65,14 @@ def matching(students, schools):
             del poolList[0]
             poolList.append(select[0]) 
             differdAccept[index] = school
-    
-    # 最終結果を辞書形式で表示
+
+    # 最終結果は配属学生を辞書で表示
     matching = {} 
     for school in differdAccept:
-        i = 0
-        while len(school.temporaryList) > i:
-            school.temporaryList[i] = school.temporaryList[i].name
-            i += 1
-        matching[school.name] = school.temporaryList
-    return matching
+        result = []
+        for student in school.temporaryList:
+            result.append(student.name)
+        matching[school.name] = result
     
+    return matching
+   
